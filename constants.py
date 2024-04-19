@@ -1,0 +1,18 @@
+# Game parameters
+FPS = 60
+SCREEN_WIDTH = 900
+SCREEN_HEIGHT = 600
+FONT_SIZE = 15
+PAD_SIZE = 140
+
+
+PAD_SPEED = 5
+BALL_SPEED = 2
+
+
+# Colors
+RED = (255, 0, 0)
+BG = (40, 25, 25)
+PANEL = (50, 50, 50)
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
