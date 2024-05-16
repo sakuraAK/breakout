@@ -1,8 +1,9 @@
 import pygame
 from pygame import mixer
 import csv
-from constants import SCREEN_HEIGHT, SCREEN_WIDTH, BG, FPS, FONT_SIZE, PANEL, WHITE, PAD_SPEED, BALL_SPEED
-from gameobjects import Pad, Ball
+from constants import SCREEN_HEIGHT, SCREEN_WIDTH, BG, FPS, FONT_SIZE, PANEL, WHITE, PAD_SPEED, BRICK_WIDTH,\
+    BRICK_HEIGHT
+from gameobjects import Pad, Ball, Brick
 
 mixer.init()
 pygame.init()
@@ -31,8 +32,9 @@ def scale_image(image, scale):
     return pygame.transform.scale(image, (w * scale, h * scale))
 
 # load images
-ball_image = scale_image(pygame.image.load("assets/images/ball.png").convert_alpha(), 1)
+ball_image = scale_image(pygame.image.load("assets/images/ball.png").convert_alpha(), 0.15)
 pad_image = scale_image(pygame.image.load("assets/images/pad.png").convert_alpha(), 1)
+brick_image = scale_image(pygame.image.load("assets/images/1_0.png").convert_alpha(), 0.26)
 
 # pygame.mixer.music.load("assets/audio/music.wav")
 # pygame.mixer.music.set_volume(0.2)
@@ -61,6 +63,25 @@ def draw_game_info():
 pad = Pad(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 15, pad_image)
 ball = Ball(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, ball_image)
 
+bricks = []
+
+# load bricks from file
+with open("assets/levels/1.txt") as level_file:
+    line = level_file.readline()
+    row_counter = 0
+    while line:
+        if len(line) > 0:
+            brick_types = line.split(",")
+            counter = 0
+            for brick_type in brick_types:
+                if int(brick_type) != 0:
+                    brick = Brick(brick_image, 50 + counter * BRICK_WIDTH, 50 + BRICK_HEIGHT * row_counter)
+                    bricks.append(brick)
+                counter += 1
+        row_counter += 1
+        line = level_file.readline()
+
+
 
 
 # Main game loop
@@ -84,12 +105,15 @@ while run:
 
     # Move game objects
     pad.move(dx)
-    ball.move(BALL_SPEED, -BALL_SPEED)
+    ball.move(pad, bricks)
 
 
     # Draw game objects
     pad.draw(screen)
     ball.draw(screen)
+
+    for brick in bricks:
+        brick.draw(screen)
 
 
     # Event handling section
