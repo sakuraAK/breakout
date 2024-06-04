@@ -19,6 +19,9 @@ number_of_lives = 1
 score = 0
 game_over = True
 next_level = False
+new_game = False
+read_name = True
+user_name = ""
 
 # pad movement variables
 move_left = False
@@ -73,6 +76,15 @@ pad_hit_sound = pygame.mixer.Sound("assets/audio/PadBounce.wav")
 pad_hit_sound.set_volume(0.5)
 
 
+def draw_main_menu_screen():
+    draw_text(SCREEN_WIDTH//2 - 160, SCREEN_HEIGHT // 2 - 60, large_font, "BREAKOUT 1976", RED)
+    button_rect = pygame.Rect(0, 0, BUTTON_WIDTH, 65)
+    button_rect.center = (SCREEN_WIDTH//2 - 80, SCREEN_HEIGHT // 2 + 60)
+    screen.blit(button_image, button_rect)
+    pygame.draw.rect(screen, RED, button_rect, 1)
+    draw_text(SCREEN_WIDTH // 2 - 130, SCREEN_HEIGHT // 2 + 50, font, "START", WHITE)
+    return button_rect
+
 
 
 def draw_game_info():
@@ -86,17 +98,25 @@ def draw_game_info():
 
 
 def draw_game_over_screen():
-    draw_text(SCREEN_WIDTH//2 - 160, SCREEN_HEIGHT // 2 - 60, large_font, "GAME OVER!", RED)
-    draw_text(SCREEN_WIDTH // 2 - 80, SCREEN_HEIGHT // 2 - 20, font, f"Score: {score}", RED)
-    draw_text(SCREEN_WIDTH // 2 - 80, SCREEN_HEIGHT // 2, font, f"Level: {level}", RED)
-    button_rect = pygame.Rect(0, 0, BUTTON_WIDTH, 65)
-    button_rect.center = (SCREEN_WIDTH//2 - 50, SCREEN_HEIGHT // 2 + 60)
-    screen.blit(button_image, button_rect)
-    pygame.draw.rect(screen, RED, button_rect, 1)
-    draw_text(SCREEN_WIDTH // 2 - 130, SCREEN_HEIGHT // 2 + 50, font, "Play Again", WHITE)
-    return button_rect
+    draw_text(SCREEN_WIDTH // 2 - 160, SCREEN_HEIGHT // 2 - 83, large_font, "GAME OVER!", WHITE)
+    draw_text(SCREEN_WIDTH//2 - 160, SCREEN_HEIGHT // 2 - 80, large_font, "GAME OVER!", RED)
+    draw_text(SCREEN_WIDTH // 2 - 80, SCREEN_HEIGHT // 2 - 40, font, f"SCORE: {score}", RED)
+    draw_text(SCREEN_WIDTH // 2 - 80, SCREEN_HEIGHT // 2 - 20, font, f"LEVEL: {level}", RED)
+    start_button_rect = pygame.Rect(0, 0, BUTTON_WIDTH, 65)
+    start_button_rect.center = (SCREEN_WIDTH//2 - 20, SCREEN_HEIGHT // 2 + 40)
+    screen.blit(button_image, start_button_rect)
+    pygame.draw.rect(screen, RED, start_button_rect, 1)
+    draw_text(SCREEN_WIDTH // 2 - 55, SCREEN_HEIGHT // 2 + 30, font, "PLAY", WHITE)
 
+    quit_button_rect = pygame.Rect(0, 0, BUTTON_WIDTH, 65)
+    quit_button_rect.center = (SCREEN_WIDTH // 2 - 20, SCREEN_HEIGHT // 2 + 120)
+    screen.blit(button_image, quit_button_rect)
+    pygame.draw.rect(screen, RED, quit_button_rect, 1)
+    draw_text(SCREEN_WIDTH // 2 - 55, SCREEN_HEIGHT // 2 + 110, font, "QUIT", WHITE)
+    return start_button_rect, quit_button_rect
 
+def draw_user_name():
+    draw_text(SCREEN_WIDTH // 2 - 160, SCREEN_HEIGHT // 2 - 120, large_font, user_name, WHITE)
 
 # Game objects
 pad = Pad(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 15, pad_image)
@@ -136,6 +156,28 @@ while run:
     # clearing the screen
     screen.fill(BG)
 
+    if new_game:
+        button_rect = draw_main_menu_screen()
+        if pygame.mouse.get_pressed()[0]:
+            pos = pygame.mouse.get_pos()
+            if button_rect.collidepoint(pos[0], pos[1]):
+                new_game = False
+                number_of_lives = 3
+                level = 1
+                score = 0
+    if game_over:
+        draw_user_name()
+        start_button_rect, quit_button_rect = draw_game_over_screen()
+        if pygame.mouse.get_pressed()[0]:
+            pos = pygame.mouse.get_pos()
+            if start_button_rect.collidepoint(pos[0], pos[1]):
+                game_over = False
+                number_of_lives = 3
+                level = 1
+                score = 0
+            if quit_button_rect.collidepoint(pos[0], pos[1]):
+                game_over = False
+                run = False
     if not game_over:
         # check if next level achieved
         if next_level:
@@ -197,10 +239,13 @@ while run:
 
 
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
-                move_left = True
-            if event.key == pygame.K_RIGHT:
-                move_right = True
+            if read_name:
+                user_name += str(event.unicode).upper()
+            else:
+                if event.key == pygame.K_LEFT:
+                    move_left = True
+                if event.key == pygame.K_RIGHT:
+                    move_right = True
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
